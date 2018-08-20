@@ -1,0 +1,3 @@
+[submodule "graphql-to-json-converter"]
+	path = graphql-to-json-converter
+	url = https://github.com/LiUGraphQL/graphql-to-json-converter.git

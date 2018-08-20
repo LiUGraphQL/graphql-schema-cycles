@@ -1,0 +1,84 @@
+[
+  {
+    "vertexID": "User",
+    "vertexType": "type",
+    "referenceList": [
+      {
+        "label": "avatar",
+        "reference": "Photo"
+      }
+    ]
+  },
+  {
+    "vertexID": "Message",
+    "vertexType": "type",
+    "referenceList": [
+      {
+        "label": "user",
+        "reference": "User"
+      }
+    ]
+  },
+  {
+    "vertexID": "Person",
+    "vertexType": "type",
+    "referenceList": [
+      {
+        "label": "friends",
+        "reference": "Person"
+      },
+      {
+        "label": "friends",
+        "reference": "Pet"
+      },
+      {
+        "label": "friends",
+        "reference": "Robot"
+      },
+      {
+        "label": "friends",
+        "reference": "Bot"
+      },
+      {
+        "label": "enemies",
+        "reference": "Person"
+      },
+      {
+        "label": "enemies",
+        "reference": "Pet"
+      }
+    ]
+  },
+  {
+    "vertexID": "Pet",
+    "vertexType": "type",
+    "referenceList": []
+  },
+  {
+    "vertexID": "Character",
+    "vertexType": "interface",
+    "referenceList": [
+      {
+        "label": "id"
+      },
+      {
+        "label": "name"
+      }
+    ]
+  },
+  {
+    "vertexID": "Fruit",
+    "vertexType": "interface",
+    "referenceList": [
+      {
+        "label": "id"
+      },
+      {
+        "label": "name"
+      },
+      {
+        "label": "colour"
+      }
+    ]
+  }
+]

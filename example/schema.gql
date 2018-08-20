@@ -1,0 +1,90 @@
+
+type User {
+  id: Int!
+  name: String!
+  avatar: String
+}
+
+type Message {
+  id: Int!
+  text: String
+  user: User
+}
+
+input PhotoInput {
+  file: String!
+  name: String!
+}
+
+input UserInput {
+  name: String!
+  photo: InputPhoto
+}
+
+type Query {
+  user: User
+  users: [User]
+  message: Message
+  messages: [Message]
+}
+
+type Mutation {
+  createUser(data: UserInput!): User
+  createMessage(text: String): Message
+  uploadPhotos(
+    data: [PhotoInput],
+    repository: ID,
+  ): [Photo]
+}
+
+type Subscription {
+  messageCreated(repository: Int): Message
+}
+
+type schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+interface Character {
+  id: ID!
+  name: String!
+}
+
+interface Fruit {
+  id: ID!
+  name: String!
+  colour: String!
+}
+
+type Enemy {
+  id: ID!
+  name: String!
+  sword: String!
+}
+
+type Robot {
+  id: ID!
+}
+
+type Bot {
+  id: ID!
+}
+
+type Person implements Character {
+  id: ID!
+  name: String!
+  last: String!
+  friends: [Friend]
+  enemies: [Enemy]
+}
+
+union Friend = Person | Pet | Robot | Bot
+
+union Enemy = Person | Pet
+
+type Pet {
+     id: ID!
+     name: String!
+}
