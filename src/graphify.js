@@ -1,9 +1,3 @@
-// ==== To do ==== //
-/*
-  * 
-  * 
-*/
-
 module.exports = function (data) {
 
     var Graph = [];
@@ -40,7 +34,7 @@ module.exports = function (data) {
 			    }
 			}
 			if ( !unionFound ) {
-			    tmpReferenceList.push({"label": fields ,"reference": objectType[fields][target]});
+			    tmpReferenceList.push({"label": fields ,"reference": objectType[fields].type});
 			}
 		    }
 		}
@@ -86,9 +80,6 @@ module.exports = function (data) {
     addToGraph("type");
     addToGraph("interface");
     connectVertices();
-    console.log(Graph);
-
-    console.log("=========================");
     printGraph();
     return Graph;
 }

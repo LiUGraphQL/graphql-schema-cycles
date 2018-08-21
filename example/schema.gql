@@ -50,15 +50,26 @@ type schema {
 interface Character {
   id: ID!
   name: String!
+  robot: Robot
+  fav_fruit: Fruit
 }
 
 interface Fruit {
   id: ID!
   name: String!
   colour: String!
+  robot: Robot
 }
 
-type Enemy {
+type Apple implements Fruit {
+  id: ID!
+  name: String!
+  colour: String!
+  brand: String
+  worker: Robot!
+}
+
+type BadBoyes {
   id: ID!
   name: String!
   sword: String!
@@ -78,6 +89,7 @@ type Person implements Character {
   last: String!
   friends: [Friend]
   enemies: [Enemy]
+  fav_fruit: Fruit
 }
 
 union Friend = Person | Pet | Robot | Bot
@@ -87,4 +99,5 @@ union Enemy = Person | Pet
 type Pet {
      id: ID!
      name: String!
+     fav_fruit: Apple
 }
