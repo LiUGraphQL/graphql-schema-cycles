@@ -1,103 +1,39 @@
 
-type User {
-  id: Int!
-  name: String!
-  avatar: String
+type B {
+  id: ID
+  refC: C
+  refD: D
+}
+type C {
+  id: ID
+
+}
+type D {
+  id: ID
+  refY: Y
+}
+type E {
+  id: ID
+  refF: F
+}
+type F {
+  id: ID
+  refG: G
+}
+type G {
+  id: ID
+  refH: H
+}
+type H {
+  id: ID
+  refE: E
 }
 
-type Message {
-  id: Int!
-  text: String
-  user: User
-}
+union Y = C | B
 
-input PhotoInput {
-  file: String!
-  name: String!
-}
+union X = D | B | A | C
 
-input UserInput {
-  name: String!
-  photo: InputPhoto
-}
-
-type Query {
-  user: User
-  users: [User]
-  message: Message
-  messages: [Message]
-}
-
-type Mutation {
-  createUser(data: UserInput!): User
-  createMessage(text: String): Message
-  uploadPhotos(
-    data: [PhotoInput],
-    repository: ID,
-  ): [Photo]
-}
-
-type Subscription {
-  messageCreated(repository: Int): Message
-}
-
-type schema {
-  query: Query
-  mutation: Mutation
-  subscription: Subscription
-}
-
-interface Character {
-  id: ID!
-  name: String!
-  robot: Robot
-  fav_fruit: Fruit
-}
-
-interface Fruit {
-  id: ID!
-  name: String!
-  colour: String!
-  robot: Robot
-}
-
-type Apple implements Fruit {
-  id: ID!
-  name: String!
-  colour: String!
-  brand: String
-  worker: Robot!
-}
-
-type BadBoyes {
-  id: ID!
-  name: String!
-  sword: String!
-}
-
-type Robot {
-  id: ID!
-}
-
-type Bot {
-  id: ID!
-}
-
-type Person implements Character {
-  id: ID!
-  name: String!
-  last: String!
-  friends: [Friend]
-  enemies: [Enemy]
-  fav_fruit: Fruit
-}
-
-union Friend = Person | Pet | Robot | Bot
-
-union Enemy = Person | Pet
-
-type Pet {
-     id: ID!
-     name: String!
-     fav_fruit: Apple
+type A {
+  id: ID
+  refB: X
 }

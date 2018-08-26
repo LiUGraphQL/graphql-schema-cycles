@@ -1,3 +1,6 @@
+/*
+  * Union or union, it will crash on Union
+*/
 module.exports = function (data) {
 
     var Graph = [];
