@@ -83,6 +83,6 @@ module.exports = function (data) {
     addToGraph("type");
     addToGraph("interface");
     connectVertices();
-    printGraph();
+    //printGraph();
     return Graph;
 }

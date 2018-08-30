@@ -29,11 +29,11 @@ type H {
   refE: E
 }
 
-union Y = C | B
+union Y = B | C
 
-union X = D | B | A | C
+union X = A | B | C | D
 
 type A {
   id: ID
-  refB: X
+  refX: X
 }
