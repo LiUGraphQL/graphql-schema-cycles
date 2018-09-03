@@ -2,7 +2,8 @@
 type B {
   id: ID
   refC: C
-  refD: D
+  refD1: D
+  refD2: D
 }
 type C {
   id: ID
@@ -10,6 +11,7 @@ type C {
 }
 type D {
   id: ID
+  refB: B
   refY: Y
 }
 type E {
@@ -20,14 +22,21 @@ type F {
   id: ID
   refG: G
 }
+#type G implements Z {
 type G {
   id: ID
   refH: H
+  #irefH: H
 }
 type H {
   id: ID
   refE: E
 }
+
+#interface Z {
+#  id: ID
+#  irefH: H
+#}
 
 union Y = B | C
 

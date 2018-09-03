@@ -5,6 +5,7 @@ const detectCycles = require('./src/detectCycles');
 module.exports = function convert(data) {
     const jsObj = converter(data);
     const graph = convertToGraph(jsObj);
+    //const allCycles = detectCycles(graph);
     const allCycles = detectCycles(graph);
     return allCycles;
 }
