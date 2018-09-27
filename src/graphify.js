@@ -3,7 +3,7 @@ function convertToGraph(data) {
     var Graph = [];
     const graphQLTypes = ["Int", "String", "ID", "Boolean", "Float"];
     const excludeList = ["Mutation","Query", "Subscription"];
-    var unionFound = false;
+    //var unionFound = false;
 
     function addToGraph(target) {
 	for ( var objectName in data[target] ) {
@@ -18,21 +18,27 @@ function convertToGraph(data) {
 		    derived_by = Object.keys(objectType["implements"])[0];
 		    objectType = objectType["implements"][Object.keys(objectType["implements"])[0]];
 		}
+
 		var tmpReferenceList = [];
 		for ( var fields in objectType) {
-		    unionFound = false;
-		    if ( !(graphQLTypes.includes(objectType[fields].type)) ) {
-			for ( var unions in data.union ) {
+		    //unionFound = false;
+		    if ( !(graphQLTypes.includes(objectType[fields].type)) ) { // if not a standard type
+			/*for ( var unions in data.union ) {  // check if reference is a union.
 			    if ( unions === objectType[fields].type) {
 				unionFound = true;
 				for ( var unionField in data.union[unions] ) {
 				    tmpReferenceList.push({"label": fields, "reference": unionField});
 				}
 			    }
+			}*/
+			//if ( !unionFound ) {
+			if (target === "union") { // since unions are added withouth references.
+			    tmpReferenceList.push({"label":"#union_ref", "reference":fields});
 			}
-			if ( !unionFound ) {
+			else {
 			    tmpReferenceList.push({"label": fields ,"reference": objectType[fields].type});
 			}
+			//}
 		    }
 		}
  		var tmpVertex = {"vertexID": objectName};
@@ -41,7 +47,7 @@ function convertToGraph(data) {
 		Graph[objectName] = tmpVertex;
 
 		if(is_derived) {
-		    Graph[derived_by].referenceList.push({"label":">derives", "reference":objectName});
+		    Graph[derived_by].referenceList.push({"label":"#interface_ref", "reference":objectName});
 		}
 	    }
 	}
@@ -70,7 +76,9 @@ function convertToGraph(data) {
 	}
     }
     addToGraph("interface");
+    addToGraph("union");
     addToGraph("type");
+
     connectVertices();
     return Graph;
 }
