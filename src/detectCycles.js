@@ -1,4 +1,4 @@
-module.exports = function (Graph, select) {
+function detectCycles(Graph, select) {
 
     function pruneEdge(SCC) {
 	for(var component in SCC) {
@@ -43,11 +43,13 @@ module.exports = function (Graph, select) {
 					      vertex.referenceList[reference].reference.lowlink);
 		}
 		else if ( vertex.referenceList[reference].reference.onStack ) {
+
 		    vertex.lowlink = Math.min(vertex.lowlink,
 					      vertex.referenceList[reference].reference.index);
 		    if (input) {
 			foundCycle = true;
-			return true;
+			//return true;
+			return;
 		    }
 		}
 	    }
@@ -63,11 +65,7 @@ module.exports = function (Graph, select) {
 		} while (w !== vertex);
 		SCCs.push(tmpSCC);
 	    }
-	    //return;
-	    return false;
 	}
-	//return;
-	return false;
     }
     // Tarjan's algorithm END
 
@@ -132,28 +130,20 @@ module.exports = function (Graph, select) {
 	} // findCycles end
     }
     // Johnson's algorithm END
+    var returndata = {};
+    returndata.foundCycle = false;
+    returndata.cycles = [];
 
-    ifCycle = tarjan(select);
-    if(select) return ifCycle;
-
+    tarjan(select);
+    if(select) {
+	returndata.foundCycle = foundCycle;
+	return returndata; // ifcycle
+    }
     pruneEdge(SCCs);
-
     for (var i in SCCs) johnson(SCCs[i]);
 
-    console.log("Found cycles are: ");
 
-    for( var sc in allCycles) {
-	var string = "{ ";
-	for ( var vert in allCycles[sc] ) {
-	    string += allCycles[sc][vert]["vertex"].vertexID;
-
-	    if( allCycles[sc][vert]["vertex"].vertexType === "interface") string += "(i)";
-	    string += "[" + allCycles[sc][vert]["refLabel"] + "]";
-	    string += ", ";
-	}
-	string = string.slice(0,-4);
-	string += " }"
-	console.log(string);
-    }
-    return allCycles;
+    returndata.foundCycle = (allCycles.length > 0);
+    returndata.cycles = allCycles;
+    return returndata;
 }

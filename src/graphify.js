@@ -1,37 +1,31 @@
-/*
-  * Union or union, it will crash on Union
-*/
-module.exports = function (data) {
+function convertToGraph(data) {
 
     var Graph = [];
     const graphQLTypes = ["Int", "String", "ID", "Boolean", "Float"];
     const excludeList = ["Mutation","Query", "Subscription"];
     var unionFound = false;
 
-    function addToGraph(target)
-    {
-	for ( var objectName in data[target] )
-	{
-	    if ( !excludeList.includes(objectName) )
-	    {
+    function addToGraph(target) {
+	for ( var objectName in data[target] ) {
+	    var derived_by = "";
+	    var is_derived = false;
+
+	    if ( !excludeList.includes(objectName) ) {
 		var objectType = data[target][objectName];
-		if ( objectType["implements"] !== undefined)
-		{
+
+		if ( objectType["implements"] !== undefined) {
+		    is_derived = true;
+		    derived_by = Object.keys(objectType["implements"])[0];
 		    objectType = objectType["implements"][Object.keys(objectType["implements"])[0]];
 		}
 		var tmpReferenceList = [];
-		for ( var fields in objectType)
-		{
+		for ( var fields in objectType) {
 		    unionFound = false;
-		    if ( !(graphQLTypes.includes(objectType[fields].type)) )
-		    {
-			for ( var unions in data.union )
-			{
-			    if ( unions === objectType[fields].type)
-			    {
+		    if ( !(graphQLTypes.includes(objectType[fields].type)) ) {
+			for ( var unions in data.union ) {
+			    if ( unions === objectType[fields].type) {
 				unionFound = true;
-				for ( var unionField in data.union[unions] )
-				{
+				for ( var unionField in data.union[unions] ) {
 				    tmpReferenceList.push({"label": fields, "reference": unionField});
 				}
 			    }
@@ -44,45 +38,39 @@ module.exports = function (data) {
  		var tmpVertex = {"vertexID": objectName};
 		tmpVertex.vertexType = target;
 		tmpVertex.referenceList = tmpReferenceList;
-		Graph.push(tmpVertex);
+		Graph[objectName] = tmpVertex;
+
+		if(is_derived) {
+		    Graph[derived_by].referenceList.push({"label":">derives", "reference":objectName});
+		}
 	    }
 	}
     }
 
-    function connectVertices()
-    {
-	for ( var vertex in Graph)
-	{
-	    for ( var ref in Graph[vertex].referenceList)
-	    {
+    function connectVertices() {
+	for ( var vertex in Graph) {
+	    for ( var ref in Graph[vertex].referenceList) {
 		var reference = Graph[vertex].referenceList[ref].reference;
-		for ( var target in Graph)
-		{
-		    if ( Graph[target].vertexID === reference )
-		    {
+		for ( var target in Graph) {
+		    if ( Graph[target].vertexID === reference ) {
 			Graph[vertex].referenceList[ref].reference = Graph[target];
-			break;
+			break; // exit the last loop
 		    }
 		}
 	    }
 	}
     }
 
-    function printGraph()
-    {
-	for ( var vertex in Graph )
-	{
+    function printGraph() {
+	for ( var vertex in Graph ) {
 	    console.log("Refering from: " + Graph[vertex].vertexID);
-	    for ( var reference in Graph[vertex].referenceList )
-	    {
+	    for ( var reference in Graph[vertex].referenceList ) {
 		console.log("  TO: " + Graph[vertex].referenceList[reference].reference.vertexID);
 	    }
 	}
     }
-
-    addToGraph("type");
     addToGraph("interface");
+    addToGraph("type");
     connectVertices();
-    //printGraph();
     return Graph;
 }
