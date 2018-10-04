@@ -1,6 +1,10 @@
 //======== Setup ============
 const fs = require('fs');
-const schema = fs.readFileSync('main/schemaLarge.gql', "utf8");
+
+// take input on what file shuold be run.
+const filename = process.argv[2];
+
+const schema = fs.readFileSync(filename, "utf8");
 const convert = require('../index');
 
 //======== GraphQL to JavaScript using tool ===========
