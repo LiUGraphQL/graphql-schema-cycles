@@ -10,8 +10,6 @@ module.exports = function convert(data) {
 
     var edges = graph.edges;
     var vertices = graph.vertices;
-    console.log(edges + " " + vertices);
-
 
     var allCycles = detectCycles(graph.graph);
 
