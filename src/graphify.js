@@ -4,6 +4,9 @@
 module.exports = function (data) {
 
   var Graph = [];
+  var vertices = 0;
+  var edges = 0;
+
   const graphQLTypes = ["Int", "String", "ID", "Boolean", "Float"];
   const excludeList = ["Mutation","Query", "Subscription"];
   //var unionFound = false;
@@ -12,6 +15,7 @@ module.exports = function (data) {
     for ( var objectName in data[target] ) {
       var derived_by = "";
       var is_derived = false;
+      vertices++;
 
       if ( !excludeList.includes(objectName) ) {
         var objectType = data[target][objectName];
@@ -60,6 +64,7 @@ function connectVertices() {
   for ( var vertex in Graph) {
     for ( var ref in Graph[vertex].referenceList) {
       var reference = Graph[vertex].referenceList[ref].reference;
+      edges++;
       for ( var target in Graph) {
         if ( Graph[target].vertexID === reference ) {
           Graph[vertex].referenceList[ref].reference = Graph[target];
@@ -84,5 +89,15 @@ addToGraph("union");
 addToGraph("type");
 
 connectVertices();
-return Graph;
+
+
+var returndata = {};
+
+returndata.graph = Graph;
+returndata.edges = edges;
+returndata.vertices = vertices;
+
+return returndata;
+
+// return Graph;
 }
