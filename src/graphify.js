@@ -1,19 +1,18 @@
-/*
-* Union or union, it will crash on Union
-*/
 module.exports = function (data) {
 
   var Graph = [];
   var vertices = 0;
   var edges = 0;
 
+  var total_vertices = 0;
+
   const graphQLTypes = ["Int", "String", "ID", "Boolean", "Float"];
   const excludeList = ["Mutation","Query", "Subscription"];
-  //var unionFound = false;
 
   function addToGraph(target) {
     for ( var objectName in data[target] ) {
-      var derived_by = "";
+
+      var derived_by = [];
       var is_derived = false;
       vertices++;
 
@@ -22,82 +21,112 @@ module.exports = function (data) {
 
         if ( objectType["implements"] !== undefined) {
           is_derived = true;
-          derived_by = Object.keys(objectType["implements"])[0];
+
+          derived_by.push(Object.keys(objectType["implements"])[0]);
           objectType = objectType["implements"][Object.keys(objectType["implements"])[0]];
+
+          while ( objectType["&"] !== undefined)
+          {
+            derived_by.push(Object.keys(objectType["&"])[0]);
+            objectType = objectType["&"][Object.keys(objectType["&"])[0]];
+          }
         }
 
         var tmpReferenceList = [];
         for ( var fields in objectType) {
-          //unionFound = false;
+
+          if(objectType[fields]["type"] === undefined && objectType[fields]["args"] !== undefined)
+          {
+            objectType[fields]["type"] = objectType[fields]["args"]["type"];
+          }
+
           if ( !(graphQLTypes.includes(objectType[fields].type)) ) { // if not a standard type
-            /*for ( var unions in data.union ) {  // check if reference is a union.
-            if ( unions === objectType[fields].type) {
-            unionFound = true;
-            for ( var unionField in data.union[unions] ) {
-            tmpReferenceList.push({"label": fields, "reference": unionField});
+            if (target === "union") {
+              tmpReferenceList.push({"label":"#union_ref", "reference":fields});
+            }
+            else {
+              tmpReferenceList.push({"label": fields ,"reference": objectType[fields].type});
+            }
           }
         }
-      }*/
-      //if ( !unionFound ) {
-      if (target === "union") { // since unions are added withouth references.
-        tmpReferenceList.push({"label":"#union_ref", "reference":fields});
-      }
-      else {
-        tmpReferenceList.push({"label": fields ,"reference": objectType[fields].type});
-      }
-      //}
-    }
-  }
-  var tmpVertex = {"vertexID": objectName};
-  tmpVertex.vertexType = target;
-  tmpVertex.referenceList = tmpReferenceList;
-  Graph[objectName] = tmpVertex;
+        var tmpVertex = {"vertexID": objectName};
+        tmpVertex.vertexType = target;
+        tmpVertex.referenceList = tmpReferenceList;
+        Graph[objectName] = tmpVertex;
 
-  if(is_derived) {
-    Graph[derived_by].referenceList.push({"label":"#interface_ref", "reference":objectName});
-  }
-}
-}
-}
+        if(is_derived) {
 
-function connectVertices() {
-  for ( var vertex in Graph) {
-    for ( var ref in Graph[vertex].referenceList) {
-      var reference = Graph[vertex].referenceList[ref].reference;
-      edges++;
-      for ( var target in Graph) {
-        if ( Graph[target].vertexID === reference ) {
-          Graph[vertex].referenceList[ref].reference = Graph[target];
-          break; // exit the last loop
+          for(var der in derived_by)
+          {
+            Graph[derived_by[der]].referenceList.push({"label":"#interface_ref", "reference":objectName});
+          }
         }
       }
     }
   }
-}
 
-function printGraph() {
-  for ( var vertex in Graph ) {
-    console.log("Refering from: " + Graph[vertex].vertexID);
-    for ( var reference in Graph[vertex].referenceList ) {
-      console.log("  TO: " + Graph[vertex].referenceList[reference].reference.vertexID);
+  function connectVertices() {
+    for ( var vertex in Graph) {
+      for ( var ref in Graph[vertex].referenceList) {
+        var reference = Graph[vertex].referenceList[ref].reference;
+        edges++;
+        if(Graph[reference] === undefined)
+        {
+          throw new Error("Field reference not defined");
+        }
+        Graph[vertex].referenceList[ref].reference = Graph[reference];
+      }
     }
   }
-}
 
-addToGraph("interface");
-addToGraph("union");
-addToGraph("type");
+  function printGraph() {
+    for ( var vertex in Graph ) {
+      console.log("Refering from: " + Graph[vertex].vertexID);
+      for ( var reference in Graph[vertex].referenceList ) {
+        console.log("  TO: " + Graph[vertex].referenceList[reference].reference.vertexID);
+      }
+    }
+  }
 
-connectVertices();
+  for(var _enum in data["enum"])
+  {
+    graphQLTypes.push(_enum);
+  }
+  for(var _scalar in data["scalar"])
+  {
+    graphQLTypes.push(_scalar);
+  }
+  var returndata = {};
 
 
-var returndata = {};
+  addToGraph("interface");
+  returndata.nrInterface = vertices;
+  total_vertices = vertices;
 
-returndata.graph = Graph;
-returndata.edges = edges;
-returndata.vertices = vertices;
+  addToGraph("union");
+  returndata.nrUnion = vertices - total_vertices;
+  total_vertices += vertices;
 
-return returndata;
+  addToGraph("type");
+  returndata.nrType = vertices - total_vertices;
+  total_vertices += vertices;
 
-// return Graph;
+
+  if(Graph["Subscription"] === undefined) {
+    Graph["Subscription"] = {"vertexID": "Subscription", "referenceList":[]};
+  }
+  if(Graph["Mutation"] === undefined) {
+    Graph["Mutation"] = {"vertexID": "Mutation", "referenceList":[]};
+  }
+  if(Graph["Query"] === undefined) {
+    Graph["Query"] = {"vertexID": "Query", "referenceList":[]};
+  }
+
+  connectVertices();
+
+  returndata.graph = Graph;
+  returndata.edges = edges;
+  returndata.vertices = vertices;
+
+  return returndata;
 }

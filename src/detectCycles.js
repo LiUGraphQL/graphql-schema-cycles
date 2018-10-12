@@ -1,3 +1,5 @@
+const { PerformanceObserver, performance } = require('perf_hooks');
+
 module.exports = function (Graph, select) {
 
   function pruneEdge(SCC) {
@@ -53,7 +55,6 @@ module.exports = function (Graph, select) {
                 }
               }
             }
-            // If vertex is a root node, then a SCC is found => pop
             if (vertex.lowlink === vertex.index) {
               var tmpSCC = [];
               do {
@@ -71,6 +72,7 @@ module.exports = function (Graph, select) {
 
         // Johnson's algorithm START
         function johnson(component) {
+
           var Blocked = Array(component.length).fill(false); //blocked
           var BlockedMap = Array(component.length).fill([]);   //B
           var stack = [];
@@ -84,18 +86,27 @@ module.exports = function (Graph, select) {
           }
 
           function unblock ( u ) {
-            Blocked[u] = false;
-            for (var w in BlockedMap[u]) {
-              var targetBlock = BlockedMap[u][w];
+            Blocked[u] = false;           // unblock current node u
+            for (var w in BlockedMap[u]) { // for every node that u blocks
+              var targetBlock = BlockedMap[u][w]; // unblock that vertex aswell.
               if (Blocked[targetBlock]) unblock(targetBlock);
             }
-            BlockedMap[u].splice(w,(BlockedMap[u].length));
+            BlockedMap[u] = []; // empty blocked map!
           }
+
+
           function findCycles (v) {
+
+            if(performance.now() - t1 > 5000)
+            {
+              throw new Error('Implementation timed out! at 5 seconds.');
+            }
+
             var result = [];
             var resultEdges = [];
             stack.push(v); // push indedx of vertex (in component)
             Blocked[v] = true;
+
             for (var edge in component[v].referenceList) {
               edgeRef = component[v].referenceList[edge];
               if (edgeRef.reference.jIndex === startvertex) {
@@ -106,19 +117,20 @@ module.exports = function (Graph, select) {
                 }
                 result.push({"vertex":component[startvertex],"refLabel":""});
                 stackEdges.pop();
+                //console.log("CYCLE FOUND " + allCycles.length + " -> and startvertex is: " + startvertex);
                 allCycles.push(result);
                 result = [];
                 resultEdges = [];
               }
-              else if (!Blocked[edgeRef.reference.jIndex] && startvertex < edgeRef.reference.jIndex) {
+              else if (!Blocked[edgeRef.reference.jIndex] && startvertex < edgeRef.reference.jIndex && edgeRef.reference.jIndex != v) { // added last
                 stackEdges.push(edgeRef.label);
-                foundCycle = findCycles(edgeRef.reference.jIndex);
+                var foundCycle = findCycles(edgeRef.reference.jIndex);
               }
             }
             if (foundCycle) unblock(v);
             else {
               for (var wt in component[v].referenceList) { //w in component
-                w = component[v].referenceList[wt].reference.jIndex;
+                w = component[v].referenceList[wt].reference.jIndex
                 if ( !BlockedMap[w].includes(v)) {
                   BlockedMap[w].push(v);
                 }
@@ -135,13 +147,27 @@ module.exports = function (Graph, select) {
         returndata.cycles = [];
 
         tarjan(select);
+
         if(select) {
           returndata.foundCycle = foundCycle;
           return returndata; // ifcycle
         }
-        pruneEdge(SCCs);
-        for (var i in SCCs) johnson(SCCs[i]);
 
+        pruneEdge(SCCs);
+
+        for (var i in SCCs) {
+          var t1 = performance.now();
+
+          try {
+            johnson(SCCs[i]);
+
+          } catch (e) {
+            console.log(e);
+            returndata.cycles = allCycles;
+            return returndata;
+          }
+
+        }
 
         returndata.foundCycle = (allCycles.length > 0);
         returndata.cycles = allCycles;
