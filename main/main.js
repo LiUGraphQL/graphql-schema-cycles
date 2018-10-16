@@ -16,10 +16,8 @@ const res = run(schema);
 var t2 = performance.now();
 // should save and print here:
 
-
 var nrCycles = res.cycles.length;
 var avrageLengthOfCycle = 0;
-
 
 if(outputfile === undefined)
 {
@@ -45,14 +43,22 @@ if(outputfile === undefined)
 }
 else
 {
+
+    
     if(nrCycles > 0)
     {
-	avrageLengthOfCycle /= nrCycles;
+	for(var sc in res.cycles)
+	{
+	    avrageLengthOfCycle += res.cycles[sc].length;
+	}
+	avrageLengthOfCycle = avrageLengthOfCycle / nrCycles;
     }
     else
     {
 	avrageLengthOfCycle = 0;
     }
+    
+    // console.log(nrCycles + " " + avrageLengthOfCycle);
 
     // write to file now...
     var edgesToVertexRatio = 0;
