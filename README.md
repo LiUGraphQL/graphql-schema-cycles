@@ -8,6 +8,5 @@ To clone this repository and its submodules use the command:
   
 If you forgot to do this and only cloned the main repository, then you will only get empty folders for the submodules. In this case however, simply run:
 
+git submodules init
 git submodules update
-
- 
