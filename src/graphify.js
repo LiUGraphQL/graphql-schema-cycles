@@ -94,6 +94,7 @@ function convertToGraph(data) {
   {
     graphQLTypes.push(_enum);
   }
+
   for(var _scalar in data["scalar"])
   {
     graphQLTypes.push(_scalar);
@@ -114,6 +115,7 @@ function convertToGraph(data) {
   total_vertices += vertices;
 
 
+
   if(Graph["Subscription"] === undefined) {
     Graph["Subscription"] = {"vertexID": "Subscription", "referenceList":[]};
   }
@@ -123,6 +125,8 @@ function convertToGraph(data) {
   if(Graph["Query"] === undefined) {
     Graph["Query"] = {"vertexID": "Query", "referenceList":[]};
   }
+
+
 
   connectVertices();
 
