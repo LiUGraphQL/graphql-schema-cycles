@@ -94,7 +94,11 @@ function detectCycles(Graph, select) {
 
 
           function findCycles (v) {
-            
+
+            if(allCycles.length > 1000)
+            {
+              throw "More than 1000 cycles found";
+            }
 
             var result = [];
             var resultEdges = [];
@@ -157,6 +161,7 @@ function detectCycles(Graph, select) {
           } catch (e) {
             console.log(e);
             returndata.cycles = allCycles;
+            returndata.foundCycle = (allCycles.length > 0);
             return returndata;
           }
 
