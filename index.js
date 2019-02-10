@@ -3,7 +3,7 @@ const converter = require('./graphql-to-json-converter/lib/converter');
 const convertToGraph = require('./src/graphify');
 const detectCycles = require('./src/detectCycles');
 
-module.exports = function convert(data) {
+module.exports = function convert(data, flag_or_cfile) {
 
     var t1 = 0;
     var t2 = 0;
@@ -27,7 +27,10 @@ module.exports = function convert(data) {
     metadata.nrUnion = graph.nrUnion;
 
     t1 = performance.now();
-    var allCycles = detectCycles(graph.graph);
+
+    var allCycles = detectCycles(graph.graph, false, flag_or_cfile);
+
+
     t2 = performance.now();
     metadata.timeCycle = t2-t1;
 

@@ -72,7 +72,14 @@ module.exports = function (data) {
         edges++;
         if(Graph[reference] === undefined)
         {
-          throw new Error("Field reference not defined");
+          if(excludeList.includes(reference))
+          {
+            Graph[reference] = {"vertexID": reference, "referenceList":[]};
+          } // added to avoid when someone refers to the subscription|query|mutation types
+          else
+          {
+            throw new Error("Field " + reference +  " not defined");
+          }
         }
         Graph[vertex].referenceList[ref].reference = Graph[reference];
       }
@@ -101,26 +108,15 @@ module.exports = function (data) {
 
   addToGraph("interface");
   returndata.nrInterface = vertices;
-  total_vertices = vertices;
+  total_vertices = vertices - total_vertices;
 
   addToGraph("union");
   returndata.nrUnion = vertices - total_vertices;
-  total_vertices += vertices;
+  total_vertices += vertices - total_vertices;
 
   addToGraph("type");
   returndata.nrType = vertices - total_vertices;
-  total_vertices += vertices;
-
-
-  if(Graph["Subscription"] === undefined) {
-    Graph["Subscription"] = {"vertexID": "Subscription", "referenceList":[]};
-  }
-  if(Graph["Mutation"] === undefined) {
-    Graph["Mutation"] = {"vertexID": "Mutation", "referenceList":[]};
-  }
-  if(Graph["Query"] === undefined) {
-    Graph["Query"] = {"vertexID": "Query", "referenceList":[]};
-  }
+  total_vertices += vertices - total_vertices;
 
   connectVertices();
 
