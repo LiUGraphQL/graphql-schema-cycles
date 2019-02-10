@@ -81,6 +81,8 @@ function detectCycles(Graph, select) {
           for (var vertex = 0; vertex < component.length; vertex++) {
             startvertex = vertex;
             findCycles(vertex);
+	          BlockedMap = Array(component.length).fill([]);
+            Blocked = Array(component.length).fill(false);
           }
 
           function unblock ( u ) {
